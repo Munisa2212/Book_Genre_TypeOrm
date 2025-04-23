@@ -15,9 +15,22 @@ export class UserService {
     return this.user.save(one);
   }
 
-  async findAll() {
-    const one = await this.user.find()
-    return one;
+  async findAll(name: string, limit: number, page: number) {
+    const query: any = {};
+
+    if (name) {
+      query.name = name;
+    }
+  
+    const skip = (page - 1) * limit;
+
+    const one = await this.user.find({
+      where: query,
+      skip: skip,
+      take: limit,
+    })
+
+    return one
   }
 
   async findOne(id: number) {

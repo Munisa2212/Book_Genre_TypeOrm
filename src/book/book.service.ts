@@ -15,20 +15,40 @@ export class BookService {
     return this.book.save(one);
   }
 
-  async findAll() {
-    const one = await this.book.find({relations: ["genres", "user"]})
-    return one;git remote add origin https://github.com/Munisa2212/Book_Genre_TypeOrm.git
+  async findAll(name: string, limit: number, page: number) {
+
+    const query: any = {};
+
+    if (name) {
+      query.name = name;
+    }
+  
+    const skip = (page - 1) * limit;
+
+    const one = await this.book.find({
+      where: query,
+      skip: skip,
+      take: limit,
+      relations: ["genres", "user"]
+    })
+
+    return one
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} book`;
+  async findOne(id: number) {
+    const one = await this.book.findBy({id})
+    return one;
   }
 
-  update(id: number, updateBookDto: UpdateBookDto) {
-    return `This action updates a #${id} book`;
+  async update(id: number, data: UpdateBookDto) {
+    const one = await this.book.update(id, {...data, genres: data.genres?.map((id) => ({ id })), user: {id: data.user}})
+    const found = await this.findOne(id)
+    return found;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} book`;
+  async remove(id: number) {
+    const found = await this.findOne(id)
+    await this.book.delete(id)
+    return found;
   }
 }
